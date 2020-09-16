@@ -9,6 +9,10 @@ public struct LinkedList<Value> {
             self.value = value
             self.nextNode = nextNode
         }
+        
+        deinit {
+            print("deinit: \(self.value)")
+        }
     }
     
     public var isEmpty: Bool { true }
@@ -16,6 +20,7 @@ public struct LinkedList<Value> {
     private var head: Node<Value>?
     
     public mutating func append(_ value: Value) {
+        print("----- append ----------")
         let newNode = Node(value: value)
         
         print("append: \(newNode.value)")
@@ -39,6 +44,7 @@ public struct LinkedList<Value> {
     
     
     public mutating func push(_ value: Value) {
+        print("----- push ----------")
         let newNode = Node(value: value)
         
         if let head = self.head {
@@ -50,6 +56,7 @@ public struct LinkedList<Value> {
     }
     
     public mutating func pop() -> Value? {
+        print("----- pop ----------")
         if let head = self.head {
             self.head = nil
             return head.value
@@ -57,8 +64,9 @@ public struct LinkedList<Value> {
         
         return nil
     }
-
+    
     public mutating func removeLast() -> Value? {
+        print("----- remove last ----------")
         if let head = self.head {
             print("head present")
             var penultimateNode: Node? = head
@@ -75,8 +83,8 @@ public struct LinkedList<Value> {
         
         return nil
     }
-//    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {}
-//    public mutating func remove(after node: Node<Value>) -> Value? {}
+    //    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {}
+    //    public mutating func remove(after node: Node<Value>) -> Value? {}
 }
 
 extension LinkedList {
@@ -106,7 +114,7 @@ extension LinkedList {
 }
 
 final class UnitTests: XCTestCase {
-
+    
     func testAppend() {
         // Given
         var list = LinkedList<Int>()
@@ -135,7 +143,6 @@ final class UnitTests: XCTestCase {
         // Then
         XCTAssertEqual(list.toArray(), [1,2,3])
     }
-
     
     func testPop() {
         // Given
@@ -151,7 +158,7 @@ final class UnitTests: XCTestCase {
         XCTAssertEqual(value, 1)
         XCTAssertEqual(list.toArray(), [])
     }
- 
+    
     func testRemoveLast() {
         // Given
         var list = LinkedList<Int>()
@@ -166,6 +173,7 @@ final class UnitTests: XCTestCase {
         XCTAssertEqual(value, 3)
         XCTAssertEqual(list.toArray(), [1,2])
     }
+    
 }
 
 UnitTests.defaultTestSuite.run()
