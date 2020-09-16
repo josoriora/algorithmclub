@@ -2,12 +2,42 @@ import XCTest
 
 public struct LinkedList<Value> {
     public final class Node<Value> {
+        let value: Value
+        var nextNode: Node<Value>?
         
+        init(value: Value, nextNode: Node<Value>? = nil) {
+            self.value = value
+            self.nextNode = nextNode
+        }
     }
     
     public var isEmpty: Bool { true }
     
-    public mutating func append(_ value: Value) {}
+    private var head: Node<Value>?
+    
+    public mutating func append(_ value: Value) {
+        let newNode = Node(value: value)
+        
+        print("append: \(newNode.value)")
+        
+        if self.head != nil {
+            print("head present")
+            var tail = self.head
+            print("tail is \(tail?.value)")
+            while tail?.nextNode != nil {
+                tail = tail?.nextNode
+                print("tail is \(tail?.value)")
+            }
+            
+            tail?.nextNode = newNode
+        } else {
+            self.head = newNode
+            print("tail is \(newNode.value)")
+        }
+        print("-----------------------------")
+    }
+    
+    
     public mutating func push(_ value: Value) {}
     public mutating func pop() -> Value? { nil }
     public mutating func removeLast() -> Value? { nil }
@@ -16,7 +46,29 @@ public struct LinkedList<Value> {
 }
 
 extension LinkedList {
-    public func toArray() -> [Value] { [] }
+    public func toArray() -> [Value] {
+        var array = [Value]()
+        
+        var node = self.head
+        
+        print("to array")
+        print("head: \(node?.value)")
+        
+        while node != nil {
+            if let value = node?.value {
+                array.append(value)
+                print("append \(value)")
+            }
+            
+            node = node?.nextNode
+            
+            print("next node: \(node?.value)")
+        }
+        
+        print("-----------------------------")
+        
+        return array
+    }
 }
 
 final class UnitTests: XCTestCase {
