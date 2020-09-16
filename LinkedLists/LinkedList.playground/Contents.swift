@@ -20,9 +20,9 @@ public struct LinkedList<Value> {
         
         print("append: \(newNode.value)")
         
-        if self.head != nil {
+        if let head = self.head {
             print("head present")
-            var tail = self.head
+            var tail: Node? = head
             print("tail is \(tail?.value)")
             while tail?.nextNode != nil {
                 tail = tail?.nextNode
@@ -38,9 +38,43 @@ public struct LinkedList<Value> {
     }
     
     
-    public mutating func push(_ value: Value) {}
-    public mutating func pop() -> Value? { nil }
-    public mutating func removeLast() -> Value? { nil }
+    public mutating func push(_ value: Value) {
+        let newNode = Node(value: value)
+        
+        if let head = self.head {
+            newNode.nextNode = head
+            self.head = newNode
+        } else {
+            self.head = newNode
+        }
+    }
+    
+    public mutating func pop() -> Value? {
+        if let head = self.head {
+            self.head = nil
+            return head.value
+        }
+        
+        return nil
+    }
+
+    public mutating func removeLast() -> Value? {
+        if let head = self.head {
+            print("head present")
+            var penultimateNode: Node? = head
+            print("tail is \(penultimateNode?.value)")
+            while penultimateNode?.nextNode?.nextNode != nil {
+                penultimateNode = penultimateNode?.nextNode
+                print("tail is \(penultimateNode?.value)")
+            }
+            
+            let lastNode = penultimateNode?.nextNode
+            penultimateNode?.nextNode = nil
+            return lastNode?.value
+        }
+        
+        return nil
+    }
 //    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {}
 //    public mutating func remove(after node: Node<Value>) -> Value? {}
 }
@@ -72,6 +106,7 @@ extension LinkedList {
 }
 
 final class UnitTests: XCTestCase {
+
     func testAppend() {
         // Given
         var list = LinkedList<Int>()
@@ -100,6 +135,7 @@ final class UnitTests: XCTestCase {
         // Then
         XCTAssertEqual(list.toArray(), [1,2,3])
     }
+
     
     func testPop() {
         // Given
@@ -115,7 +151,7 @@ final class UnitTests: XCTestCase {
         XCTAssertEqual(value, 1)
         XCTAssertEqual(list.toArray(), [])
     }
-    
+ 
     func testRemoveLast() {
         // Given
         var list = LinkedList<Int>()
