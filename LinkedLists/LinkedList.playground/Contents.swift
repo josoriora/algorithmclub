@@ -105,6 +105,7 @@ public struct LinkedList<Value> {
         let tailValue = self.tail?.value
         previousNode?.nextNode = nil
         self.tail = previousNode
+        count -= 1
         
         return tailValue
     }
@@ -137,6 +138,10 @@ public struct LinkedList<Value> {
     public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {
         let nextNode = node.nextNode
         let newNode = Node(value: value, nextNode: nextNode)
+        
+        if newNode.nextNode == nil {
+            self.tail = newNode
+        }
         
         node.nextNode = newNode
         count += 1
@@ -281,6 +286,124 @@ class LinkedListTests: XCTestCase {
         XCTAssertEqual(list.tail?.value, 4)
         XCTAssertEqual(list.count, 4)
     }
+    
+    func testInsertAfterTail() {
+        // Given
+        var list: LinkedList<Int> = [1,2,3]
+        
+        // When
+        guard let node2 = list.node(at: 2) else {
+            XCTFail("Node at Index 2 should exist")
+            return
+        }
+        let insertedNode = list.insert(4, after: node2)
+        
+        // Then
+        XCTAssert(insertedNode === list.tail)
+        XCTAssertEqual(insertedNode.value, 4)
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(list.tail?.value, 4)
+        XCTAssertEqual(list.count, 4)
+    }
+    
+    func testInsertAfterHead() {
+        // Given
+        var list: LinkedList<Int> = [1,3,4]
+        
+        // When
+        guard let node0 = list.node(at: 0) else {
+            XCTFail("Node at Index 0 should exist")
+            return
+        }
+        let insertedNode = list.insert(2, after: node0)
+        
+        // Then
+        XCTAssertEqual(insertedNode.value, 2)
+        XCTAssertEqual(insertedNode.nextNode?.value, 3)
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(list.head?.nextNode?.value, 2)
+        XCTAssertEqual(list.tail?.value, 4)
+        XCTAssertEqual(list.count, 4)
+    }
+    
+    func testInsertAfter() {
+        // Given
+        var list: LinkedList<Int> = [1,1,1,1,1,3,4]
+        
+        // When
+        guard let node0 = list.node(at: 4) else {
+            XCTFail("Node at Index 0 should exist")
+            return
+        }
+        let insertedNode = list.insert(2, after: node0)
+        
+        // Then
+        XCTAssertEqual(insertedNode.value, 2)
+        XCTAssertEqual(insertedNode.nextNode?.value, 3)
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(list.head?.nextNode?.value, 1)
+        XCTAssertEqual(list.tail?.value, 4)
+        XCTAssertEqual(list.count, 8)
+    }
+    
+    func testPop() {
+        // Given
+        var list: LinkedList<Int> = [1,2,3]
+        
+        // When
+        let value = list.pop()
+        
+        // Then
+        XCTAssertEqual(value, 1)
+        XCTAssertEqual(list.head?.value, 2)
+        XCTAssertEqual(list.tail?.value, 3)
+        XCTAssertEqual(list.count, 2)
+    }
+    
+    func testPopUntilEmpty() {
+        // Given
+        var list = LinkedList<Int>()
+        list.append(1)
+        
+        // When
+        let value = list.pop()
+        
+        // Then
+        XCTAssertEqual(value, 1)
+        XCTAssertNil(list.head)
+        XCTAssertNil(list.tail)
+        XCTAssertEqual(list.count, 0)
+    }
+    
+    func testRemoveLast() {
+        // Given
+        var list: LinkedList<Int> = [1,2,3]
+        
+        // When
+        let value = list.removeLast()
+        
+        // Then
+        XCTAssertEqual(value, 3)
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(list.tail?.value, 2)
+        XCTAssertEqual(list.count, 2)
+    }
+    
+    func testRemoveLastUntilEmpty() {
+        // Given
+        var list: LinkedList<Int> = [1, 2]
+        
+        // When
+        _ = list.removeLast()
+        let value = list.removeLast()
+        
+        // Then
+        XCTAssertEqual(value, 1)
+        XCTAssertNil(list.head)
+        XCTAssertNil(list.tail)
+        XCTAssertEqual(list.count, 0)
+    }
+
 }
 
 LinkedListTests.defaultTestSuite.run()
