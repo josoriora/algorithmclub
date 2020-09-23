@@ -15,75 +15,104 @@ public struct LinkedList<Value> {
         }
     }
     
-    public var isEmpty: Bool { true }
+    public var isEmpty: Bool { self.head == nil }
     
-    private var head: Node<Value>?
+    public var description: String {
+        if self.head != nil {
+            var node = self.head
+            var descriptionString = ""
+            
+            while node != nil {
+                if let value = node?.value {
+                    descriptionString += "\(value) -> "
+                }
+                
+                node = node?.nextNode
+            }
+            
+            descriptionString += "nil"
+            return descriptionString
+        } else {
+            return "Empty List"
+        }
+    }
+    
+    public private(set) var count: Int = 0
+    
+    internal var head: Node<Value>?
+    
+    internal var tail: Node<Value>?
+    
+    init(array: [Value]) {
+        array.forEach { (value: Value) in
+            self.append(value)
+        }
+    }
     
     public mutating func append(_ value: Value) {
         print("----- append ----------")
-        let newNode = Node(value: value)
         
-        print("append: \(newNode.value)")
-        
-        if let head = self.head {
-            print("head present")
-            var tail: Node? = head
-            print("tail is \(tail?.value)")
-            while tail?.nextNode != nil {
-                tail = tail?.nextNode
-                print("tail is \(tail?.value)")
-            }
-            
-            tail?.nextNode = newNode
-        } else {
-            self.head = newNode
-            print("tail is \(newNode.value)")
+        guard let tail = self.tail else {
+            self.push(value)
+            return
         }
-        print("-----------------------------")
+        
+        tail.nextNode = Node(value: value)
+        self.tail = tail.nextNode
+        count += 1
     }
-    
-    
+        
     public mutating func push(_ value: Value) {
         print("----- push ----------")
-        let newNode = Node(value: value)
+        let newNode = Node(value: value, nextNode: self.head)
         
-        if let head = self.head {
-            newNode.nextNode = head
-            self.head = newNode
-        } else {
-            self.head = newNode
+        self.head = newNode
+        
+        if self.tail == nil {
+            self.tail = self.head
         }
+        
+        count += 1
     }
     
     public mutating func pop() -> Value? {
         print("----- pop ----------")
-        if let head = self.head {
-            self.head = nil
-            return head.value
+        defer {
+            self.head = self.head?.nextNode
+            count -= 1
+            
+            if isEmpty {
+                self.tail = nil
+            }
         }
         
-        return nil
+        return self.head?.value
     }
     
     public mutating func removeLast() -> Value? {
         print("----- remove last ----------")
-        if let head = self.head {
-            print("head present")
-            var penultimateNode: Node? = head
-            print("tail is \(penultimateNode?.value)")
-            while penultimateNode?.nextNode?.nextNode != nil {
-                penultimateNode = penultimateNode?.nextNode
-                print("tail is \(penultimateNode?.value)")
-            }
-            
-            let lastNode = penultimateNode?.nextNode
-            penultimateNode?.nextNode = nil
-            return lastNode?.value
+        
+        if self.head?.nextNode == nil {
+            return self.pop()
         }
         
-        return nil
+        var previousNode = self.head
+        
+        while previousNode?.nextNode?.nextNode != nil  {
+            previousNode = previousNode?.nextNode
+        }
+        
+        let tailValue = self.tail?.value
+        previousNode?.nextNode = nil
+        self.tail = previousNode
+        
+        return tailValue
     }
-    //    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {}
+
+//    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {
+
+    
+    
     //    public mutating func remove(after node: Node<Value>) -> Value? {}
 }
 
@@ -113,14 +142,22 @@ extension LinkedList {
     }
 }
 
-final class UnitTests: XCTestCase {
+extension LinkedList: ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = Value
     
-    func testAppend() {
+    public init(arrayLiteral elements: Value...) {
+        self.init(array: elements)
+    }
+}
+
+class LinkedListTests: XCTestCase {
+    
+    func testDescription() {
         // Given
         var list = LinkedList<Int>()
         
         // Then
-        XCTAssertEqual(list.toArray(), [])
+        XCTAssertEqual(list.description, "Empty List")
         
         // When
         list.append(1)
@@ -128,7 +165,7 @@ final class UnitTests: XCTestCase {
         list.append(3)
         
         // Then
-        XCTAssertEqual(list.toArray(), [1,2,3])
+        XCTAssertEqual(list.description, "1 -> 2 -> 3 -> nil")
     }
     
     func testPush() {
@@ -141,39 +178,29 @@ final class UnitTests: XCTestCase {
         list.push(1)
         
         // Then
-        XCTAssertEqual(list.toArray(), [1,2,3])
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(list.tail?.value, 3)
+        XCTAssertEqual(list.count, 3)
     }
     
-    func testPop() {
+    func testAppend() {
         // Given
         var list = LinkedList<Int>()
+        
+        // When
         list.append(1)
         list.append(2)
         list.append(3)
         
-        // When
-        let value = list.pop()
-        
         // Then
-        XCTAssertEqual(value, 1)
-        XCTAssertEqual(list.toArray(), [])
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(list.tail?.value, 3)
+        XCTAssertEqual(list.count, 3)
     }
     
-    func testRemoveLast() {
-        // Given
-        var list = LinkedList<Int>()
-        list.append(1)
-        list.append(2)
-        list.append(3)
-        
-        // When
-        let value = list.removeLast()
-        
-        // Then
-        XCTAssertEqual(value, 3)
-        XCTAssertEqual(list.toArray(), [1,2])
-    }
+   
+
     
 }
 
-UnitTests.defaultTestSuite.run()
+LinkedListTests.defaultTestSuite.run()
