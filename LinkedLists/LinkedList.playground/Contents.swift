@@ -108,6 +108,28 @@ public struct LinkedList<Value> {
         
         return tailValue
     }
+    
+    public func node(at index: Int) -> Node<Value>? {
+        print("------ node at ---------")
+        guard index < count else {
+            print("out of bounds")
+            return nil
+        }
+        
+        
+        var nodeAtIndex: Node<Value>? = self.head
+        var currentIndex = 0
+        print("node : \(nodeAtIndex?.value)")
+        print("index: \(currentIndex)")
+        while currentIndex < index {
+            nodeAtIndex = nodeAtIndex?.nextNode
+            currentIndex += 1
+            print("node : \(nodeAtIndex?.value)")
+            print("index: \(currentIndex)")
+        }
+        
+        return nodeAtIndex
+    }
 
 //    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {
 
@@ -198,7 +220,21 @@ class LinkedListTests: XCTestCase {
         XCTAssertEqual(list.count, 3)
     }
     
-   
+    func testNodeAt() {
+        // Given
+        let list: LinkedList<Int> = [1,2,3]
+        
+        // When
+        guard let node0 = list.node(at: 0) else {
+            XCTFail("Node at Index 0 should exist")
+            return
+        }
+        
+        // Then
+        XCTAssert(list.head === node0)
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(node0.value, 1)
+    }
 
     
 }
