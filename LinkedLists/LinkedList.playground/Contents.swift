@@ -134,6 +134,15 @@ public struct LinkedList<Value> {
         return nodeAtIndex
     }
     
+    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {
+        let nextNode = node.nextNode
+        let newNode = Node(value: value, nextNode: nextNode)
+        
+        node.nextNode = newNode
+        count += 1
+        return newNode
+    }
+    
     private func forEachWhile(closure: (Node<Value>) -> (Bool)) {
         var currentNode = self.head
         
@@ -254,8 +263,24 @@ class LinkedListTests: XCTestCase {
         XCTAssertEqual(list.head?.value, 1)
         XCTAssertEqual(node0.value, 1)
     }
-
     
+    func testInsert() {
+        // Given
+        var list: LinkedList<Int> = [1,2,4]
+        
+        // When
+        guard let node1 = list.node(at: 1) else {
+            XCTFail("Node at Index 1 should exist")
+            return
+        }
+        let insertedNode = list.insert(3, after: node1)
+        
+        // Then
+        XCTAssertEqual(insertedNode.value, 3)
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(list.tail?.value, 4)
+        XCTAssertEqual(list.count, 4)
+    }
 }
 
 LinkedListTests.defaultTestSuite.run()
