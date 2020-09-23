@@ -18,16 +18,11 @@ public struct LinkedList<Value> {
     public var isEmpty: Bool { self.head == nil }
     
     public var description: String {
-        if self.head != nil {
-            var node = self.head
+        if !self.isEmpty {
             var descriptionString = ""
             
-            while node != nil {
-                if let value = node?.value {
-                    descriptionString += "\(value) -> "
-                }
-                
-                node = node?.nextNode
+            forEach { (node: Node<Value>) in
+                descriptionString += "\(node.value) -> "
             }
             
             descriptionString += "nil"
@@ -96,10 +91,15 @@ public struct LinkedList<Value> {
             return self.pop()
         }
         
-        var previousNode = self.head
+        var previousNode: Node<Value>? = nil
         
-        while previousNode?.nextNode?.nextNode != nil  {
-            previousNode = previousNode?.nextNode
+        forEachWhile { (node: Node<Value>) -> (Bool) in
+            if node.nextNode?.nextNode == nil {
+                previousNode = node
+                return false
+            } else {
+                return true
+            }
         }
         
         let tailValue = self.tail?.value
@@ -117,18 +117,37 @@ public struct LinkedList<Value> {
         }
         
         
-        var nodeAtIndex: Node<Value>? = self.head
+        var nodeAtIndex: Node<Value>? = nil
         var currentIndex = 0
-        print("node : \(nodeAtIndex?.value)")
-        print("index: \(currentIndex)")
-        while currentIndex < index {
-            nodeAtIndex = nodeAtIndex?.nextNode
-            currentIndex += 1
-            print("node : \(nodeAtIndex?.value)")
-            print("index: \(currentIndex)")
+        
+        forEachWhile { (node: Node<Value>) -> (Bool) in
+            if currentIndex <= index {
+                nodeAtIndex = node
+                currentIndex += 1
+                
+                return true
+            } else {
+                return false
+            }
         }
         
         return nodeAtIndex
+    }
+    
+    private func forEachWhile(closure: (Node<Value>) -> (Bool)) {
+        var currentNode = self.head
+        
+        while currentNode != nil {
+            guard closure(currentNode!) else { return }
+            currentNode = currentNode?.nextNode
+        }
+    }
+    
+    private func forEach(closure: (Node<Value>) -> ()) {
+        forEachWhile { (node: Node<Value>) -> (Bool) in
+            closure(node)
+            return true
+        }
     }
 
 //    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {
