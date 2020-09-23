@@ -148,6 +148,24 @@ public struct LinkedList<Value> {
         return newNode
     }
     
+    public mutating func remove(after node: Node<Value>) -> Value? {
+        guard let nodeToBeRemoved = node.nextNode else {
+            // node is tail just return there is nothing after
+            return nil
+        }
+        
+        if let newNextNode = nodeToBeRemoved.nextNode  {
+            node.nextNode = newNextNode
+        } else {
+            // removing the tail, assign a new one
+            node.nextNode = nil
+            self.tail = node
+        }
+        
+        count -= 1
+        return nodeToBeRemoved.value
+    }
+    
     private func forEachWhile(closure: (Node<Value>) -> (Bool)) {
         var currentNode = self.head
         
@@ -164,7 +182,6 @@ public struct LinkedList<Value> {
         }
     }
 
-//    public mutating func insert(_ value: Value, after node: Node<Value>) -> Node<Value> {
 
     
     
@@ -175,23 +192,9 @@ extension LinkedList {
     public func toArray() -> [Value] {
         var array = [Value]()
         
-        var node = self.head
-        
-        print("to array")
-        print("head: \(node?.value)")
-        
-        while node != nil {
-            if let value = node?.value {
-                array.append(value)
-                print("append \(value)")
-            }
-            
-            node = node?.nextNode
-            
-            print("next node: \(node?.value)")
+        self.forEach { (node: Node<Value>) in
+            array.append(node.value)
         }
-        
-        print("-----------------------------")
         
         return array
     }
@@ -236,6 +239,7 @@ class LinkedListTests: XCTestCase {
         XCTAssertEqual(list.head?.value, 1)
         XCTAssertEqual(list.tail?.value, 3)
         XCTAssertEqual(list.count, 3)
+        XCTAssertEqual(list.toArray(), [1, 2, 3])
     }
     
     func testAppend() {
@@ -251,6 +255,7 @@ class LinkedListTests: XCTestCase {
         XCTAssertEqual(list.head?.value, 1)
         XCTAssertEqual(list.tail?.value, 3)
         XCTAssertEqual(list.count, 3)
+        XCTAssertEqual(list.toArray(), [1, 2, 3])
     }
     
     func testNodeAt() {
@@ -402,6 +407,62 @@ class LinkedListTests: XCTestCase {
         XCTAssertNil(list.head)
         XCTAssertNil(list.tail)
         XCTAssertEqual(list.count, 0)
+    }
+    
+    func testRemoveAfterUntilEmpty() {
+        // Given
+        var list: LinkedList<Int> = [1,2,3,4,5]
+        
+        // When
+        while list.head !== list.tail {
+            list.remove(after: list.head!)
+            print("description: \(list.description)")
+        }
+        XCTAssertEqual(list.count, 1)
+        XCTAssertEqual(list.head?.value, list.tail?.value)
+        list.pop()
+        
+        // Then
+        XCTAssertNil(list.head)
+        XCTAssertNil(list.tail)
+        XCTAssertEqual(list.count, 0)
+    }
+    
+    func testRemoveAfter() {
+        // Given
+        var list: LinkedList<Int> = [1,2,3]
+        
+        // When
+        guard let node0 = list.node(at: 0) else {
+            XCTFail("Node at Index 0 should exist")
+            return
+        }
+        let value = list.remove(after: node0)
+        
+        // Then
+        XCTAssertEqual(value, 2)
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssert(list.head?.nextNode === list.tail)
+        XCTAssertEqual(list.tail?.value, 3)
+        XCTAssertEqual(list.count, 2)
+    }
+    
+    func testRemoveAfterNodeBeforeTail() {
+        // Given
+        var list: LinkedList<Int> = [1,2,3]
+        
+        // When
+        guard let node1 = list.node(at: 1) else {
+            XCTFail("Node at Index 0 should exist")
+            return
+        }
+        let value = list.remove(after: node1)
+        
+        // Then
+        XCTAssertEqual(value, 3)
+        XCTAssertEqual(list.head?.value, 1)
+        XCTAssertEqual(list.tail?.value, 2)
+        XCTAssertEqual(list.count, 2)
     }
 
 }
