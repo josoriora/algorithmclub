@@ -181,11 +181,6 @@ public struct LinkedList<Value> {
             return true
         }
     }
-
-
-    
-    
-    //    public mutating func remove(after node: Node<Value>) -> Value? {}
 }
 
 extension LinkedList {
