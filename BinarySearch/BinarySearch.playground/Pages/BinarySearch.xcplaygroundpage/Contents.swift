@@ -1,45 +1,39 @@
 import XCTest
 
+
+extension Range {
+    var isValid : Bool {
+        return self.lowerBound < self.upperBound
+    }
+}
+
 func binarySearch<C>(
     for element: C.Element,
-    in collection: C
+    in collection: C,
+    range: Range<C.Index>? = nil
 ) -> C.Index? where C: RandomAccessCollection, C.Element: Comparable {
     print("----- binary search ------")
     
-    var range = collection.startIndex..<collection.endIndex
+    var range = range ?? collection.startIndex..<collection.endIndex
     
-    while range.lowerBound < range.upperBound {
-        let distance = collection.distance(from: range.lowerBound, to: range.upperBound)
-        let middleIndex = collection.index(range.lowerBound, offsetBy: distance / 2)
-        let middleElement = collection[middleIndex]
-        
-        if middleElement > element {
-            range = range.lowerBound..<middleIndex
-        } else if middleElement < element {
-            range = middleIndex..<range.upperBound
-        } else {
-            return middleIndex
-        }
+    guard range.isValid else { return nil }
+    
+    let distance = collection.distance(from: range.lowerBound, to: range.upperBound)
+    let middleIndex = collection.index(range.lowerBound, offsetBy: distance / 2)
+    let middleElement = collection[middleIndex]
+    
+    if middleElement > element {
+        range = range.lowerBound..<middleIndex
+    } else if middleElement < element {
+        range = middleIndex..<range.upperBound
+    } else {
+        return middleIndex
     }
-    /*
-     value = 5
-     
-     1 - 2 - 3 - 4 - 5
-     
-     it 1:
-     m = (4 - 0) / 2 = 2
-     
-     cv = collection[m]
-     
-     if cv > v
-        right = m - 1
-     else if cv < v
-        left = m + 1
-     else
-        return cv
-     */
-    return nil
+    
+    return binarySearch(for: element, in: collection, range: range)
 }
+
+
 
 final class UnitTests: XCTestCase {
     let sut = (0..<1000)
